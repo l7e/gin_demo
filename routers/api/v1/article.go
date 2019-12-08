@@ -93,7 +93,78 @@ func AddArticle(c *gin.Context) {
 }
 
 func UpdateArticle(c *gin.Context) {
+	id, _ := strconv.Atoi(c.Param("id"))
+	tagId, _ := strconv.Atoi(c.Query("tag_id"))
+	title := c.Query("title")
+	desc := c.Query("desc")
+	content := c.Query("content")
+	modifiedBy := c.Query("modified_by")
 
+	valid := validation.Validation{}
+
+	state := -1
+	if arg := c.Query("state"); arg != "" {
+		state, _ := strconv.Atoi(arg)
+		valid.Range(state, 0, 1, "state").Message("状态只允许0或1")
+	}
+
+	valid.Min(id, 0, "id").Message("id不能小于1")
+	valid.Min(tagId, 0, "id").Message("tag_id不能小于1")
+	valid.MaxSize(title, 100, "title").Message("标题最长100字符")
+	valid.MaxSize(desc, 100, "desc").Message("简述最长100字符")
+	valid.MaxSize(content, 100, "content").Message("内容最长100字符")
+	valid.Required(modifiedBy, "created_by").Message("修改人不能为空")
+	valid.MaxSize(modifiedBy, 100, "created_by").Message("修改人最长100字符")
+
+	code := e.INVALID_PARAMS
+
+	if !valid.HasErrors() {
+		if models.ExistArticleByID(id) {
+			if models.ExistTagByID(tagId) {
+				code = e.SUCCESS
+
+				data := make(map[string]interface{})
+
+				if tagId > 0 {
+					data["tag_id"] = tagId
+				}
+
+				if title != "" {
+					data["title"] = title
+				}
+
+				if desc != "" {
+					data["desc"] = desc
+				}
+
+				if content != "" {
+					data["content"] = content
+				}
+
+				if state != -1 {
+					data["state"] = state
+				}
+
+				data["modified_by"] = modifiedBy
+
+				models.UpdateArticle(id, data)
+			} else {
+				code = e.ERROR_NOT_EXIST_TAG
+			}
+		} else {
+			code = e.ERROR_NOT_EXIST_ARTICLE
+		}
+	} else {
+		for _, err := range valid.Errors {
+			log.Printf("err.key : %s ,err.message : %s\n", err.Key, err.Message)
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code": code,
+		"msg":  e.GetMsg(code),
+		"data": make(map[string]interface{}),
+	})
 }
 
 func DeleteArticle(c *gin.Context) {

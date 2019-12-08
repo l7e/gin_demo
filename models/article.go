@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"github.com/jinzhu/gorm"
 	"time"
 )
@@ -32,6 +33,7 @@ func (article *Article) BeforeUpdate(scope *gorm.Scope) error {
 func ExistArticleByID(id int) bool {
 	var article Article
 	db.Where("id = ?", id).First(&article)
+	fmt.Println(article)
 	if article.ID > 0 {
 		return true
 	}
