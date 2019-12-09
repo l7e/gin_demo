@@ -3,6 +3,8 @@ package v1
 import (
 	"gin_demo/models"
 	"gin_demo/pkg/e"
+	"gin_demo/pkg/setting"
+	"gin_demo/pkg/util"
 	"github.com/astaxie/beego/validation"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -11,7 +13,41 @@ import (
 )
 
 func GetArticles(c *gin.Context) {
+	data := make(map[string]interface{})
+	maps := make(map[string]interface{})
 
+	valid := validation.Validation{}
+	state := -1
+
+	if arg := c.Query("state"); arg != "" {
+		state, _ = strconv.Atoi(arg)
+		valid.Range(state, 0, 1, "state").Message("状态只能为0或1")
+		maps["state"] = state
+	}
+
+	if arg := c.Query("tag_id"); arg != "" {
+		tagId, _ := strconv.Atoi(arg)
+		valid.Min(tagId, 1, "tag_id").Message("tag_id不能小于1")
+		maps["tag_id"] = tagId
+	}
+
+	code := e.INVALID_PARAMS
+
+	if !valid.HasErrors() {
+		data["lists"] = models.GetArticles(util.GetPage(c), setting.PageSize, maps)
+		data["total"] = models.GetArticleTotal(maps)
+		code = e.SUCCESS
+	} else {
+		for _, err := range valid.Errors {
+			log.Printf("%s", err)
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code": code,
+		"msg":  e.GetMsg(code),
+		"data": data,
+	})
 }
 
 func GetArticle(c *gin.Context) {
