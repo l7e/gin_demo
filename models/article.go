@@ -75,7 +75,11 @@ func AddArticle(data map[string]interface{}) bool {
 }
 
 func DeleteArticle(id int) bool {
-	db.Where("id = ?",id).Delete(Article{})
+	db.Where("id = ?", id).Delete(Article{})
 	return true
 }
 
+func ClearAllArticle() bool {
+	db.Where("deleted_on != ?",0).Delete(&Article{})
+	return true
+}

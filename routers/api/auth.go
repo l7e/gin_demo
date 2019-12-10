@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"gin_demo/models"
 	"gin_demo/pkg/e"
 	"gin_demo/pkg/logging"
@@ -19,9 +18,6 @@ type Auth struct {
 func GetAuth(c *gin.Context) {
 	username := c.Query("username")
 	password := c.Query("password")
-
-	fmt.Println(username)
-	fmt.Println(password)
 
 	valid := validation.Validation{}
 
@@ -45,11 +41,8 @@ func GetAuth(c *gin.Context) {
 		}
 	} else {
 		for _, err := range valid.Errors {
-			fmt.Println(11)
 			logging.Info(err.Key)
 			logging.Info(err.Message)
-			fmt.Println(11)
-
 		}
 	}
 
