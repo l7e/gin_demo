@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"gin_demo/models"
+	"gin_demo/pkg/logging"
 	"gin_demo/pkg/setting"
 	"gin_demo/routers"
 	"github.com/fvbock/endless"
@@ -21,11 +23,21 @@ func main() {
 	//	MaxHeaderBytes: 1 << 20,
 	//}
 
-	endless.DefaultReadTimeOut = setting.ReadTimeout
-	endless.DefaultWriteTimeOut = setting.WriteTimeout
+	setting.Setup()
+	models.Setup()
+	logging.Setup()
+
+	//fmt.Println(	setting.AppSetting)
+	//
+	//fmt.Println(setting.ServerSetting)
+	//
+	//fmt.Println(setting.DatabaseSetting)
+
+	endless.DefaultReadTimeOut = setting.ServerSetting.ReadTimeOut
+	endless.DefaultWriteTimeOut = setting.ServerSetting.WriteTimeOut
 	endless.DefaultMaxHeaderBytes = 1 << 20
 
-	endPoint := fmt.Sprintf(":%d", setting.HTTPPort)
+	endPoint := fmt.Sprintf(":%d", setting.ServerSetting.HttpPort)
 
 	server := endless.NewServer(endPoint, routers.InitRouter())
 
