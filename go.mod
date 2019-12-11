@@ -17,6 +17,7 @@ require (
 	github.com/leodido/go-urn v1.2.0 // indirect
 	github.com/mailru/easyjson v0.7.0 // indirect
 	github.com/mattn/go-isatty v0.0.10 // indirect
+	github.com/pkg/errors v0.8.1
 	github.com/robfig/cron v1.2.0
 	github.com/swaggo/swag v1.6.3 // indirect
 	github.com/urfave/cli v1.22.2 // indirect
