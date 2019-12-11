@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"gin_demo/models"
+	"gin_demo/pkg/gredis"
 	"gin_demo/pkg/logging"
 	"gin_demo/pkg/setting"
 	"gin_demo/routers"
@@ -26,12 +27,7 @@ func main() {
 	setting.Setup()
 	models.Setup()
 	logging.Setup()
-
-	//fmt.Println(	setting.AppSetting)
-	//
-	//fmt.Println(setting.ServerSetting)
-	//
-	//fmt.Println(setting.DatabaseSetting)
+	gredis.Setup()
 
 	endless.DefaultReadTimeOut = setting.ServerSetting.ReadTimeOut
 	endless.DefaultWriteTimeOut = setting.ServerSetting.WriteTimeOut

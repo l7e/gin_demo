@@ -1,7 +1,6 @@
 package routers
 
 import (
-	"gin_demo/middleware/jwt"
 	"gin_demo/pkg/upload"
 	"gin_demo/routers/api"
 	v1 "gin_demo/routers/api/v1"
@@ -18,7 +17,7 @@ func InitRouter() *gin.Engine {
 	r.POST("/upload", api.UploadImage)
 
 	apiv1 := r.Group("/api/v1")
-	apiv1.Use(jwt.JWT())
+	//apiv1.Use(jwt.JWT())
 	{
 		apiv1.GET("/tags", v1.GetTags)
 		apiv1.POST("/tags", v1.AddTag)
@@ -28,8 +27,8 @@ func InitRouter() *gin.Engine {
 		apiv1.GET("/articles", v1.GetArticles)
 		apiv1.GET("/article/:id", v1.GetArticle)
 		apiv1.POST("/articles", v1.AddArticle)
-		apiv1.PUT("/articles/:id", v1.UpdateArticle)
-		apiv1.DELETE("/articles/:id", v1.DeleteArticle)
+		//apiv1.PUT("/articles/:id", v1.UpdateArticle)
+		//apiv1.DELETE("/articles/:id", v1.DeleteArticle)
 	}
 
 	return r

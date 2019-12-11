@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"github.com/jinzhu/gorm"
 	"time"
 )
@@ -30,14 +29,16 @@ func (article *Article) BeforeUpdate(scope *gorm.Scope) error {
 	return nil
 }
 
-func ExistArticleByID(id int) bool {
+func ExistArticleByID(id int) (bool, error) {
 	var article Article
-	db.Where("id = ?", id).First(&article)
-	fmt.Println(article)
-	if article.ID > 0 {
-		return true
+	err := db.Where("id = ? AND deleted_on = ?", id, 0).First(&article).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return false, err
 	}
-	return false
+	if article.ID > 0 {
+		return true, nil
+	}
+	return false, nil
 }
 
 func GetArticleTotal(maps interface{}) (count int) {
@@ -50,10 +51,13 @@ func GetArticles(pageNum, pageSize int, maps interface{}) (articles []Article) {
 	return articles
 }
 
-func GetArticle(id int) (article Article) {
-	db.First(&article, id)
-	db.Model(&article).Related(&article.Tag)
-	return article
+func GetArticle(id int) (*Article, error) {
+	var article Article
+	err := db.Where("id = ? AND deleted_on = ?", id, 0).First(&article).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil, err
+	}
+	return &article, nil
 }
 
 func UpdateArticle(id int, data interface{}) bool {
@@ -80,6 +84,6 @@ func DeleteArticle(id int) bool {
 }
 
 func ClearAllArticle() bool {
-	db.Where("deleted_on != ?",0).Delete(&Article{})
+	db.Where("deleted_on != ?", 0).Delete(&Article{})
 	return true
 }
