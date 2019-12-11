@@ -2,11 +2,51 @@ package logging
 
 import (
 	"fmt"
+	"gin_demo/pkg/file"
 	"gin_demo/pkg/setting"
-	"log"
+	"github.com/pkg/errors"
 	"os"
 	"time"
 )
+
+
+func getLogFilePath() string {
+	return fmt.Sprintf("%s%s", setting.AppSetting.RuntimeRootPath, setting.AppSetting.LogSavePath)
+}
+
+func getLogFileName() string {
+	return fmt.Sprintf("%s%s.%s",
+		setting.AppSetting.LogSaveName,
+		time.Now().Format(setting.AppSetting.TimeFormat),
+		setting.AppSetting.LogFileExt,
+	)
+}
+
+func openLogFile(fileName, filePath string) (*os.File, error) {
+	dir, err := os.Getwd()
+	if err != nil {
+		return nil, errors.Errorf("os.GetWD err : %s", err)
+	}
+
+	src := dir + "/" + filePath
+	if perm := file.CheckPermission(src); perm == true {
+		return nil, fmt.Errorf("file.CheckPermission Permission denied src: %s", src)
+	}
+
+	err = file.IsNotExistMkDir(src)
+	if err != nil {
+		return nil, fmt.Errorf("file.IsNotExistMkDir src: %s, err: %v", src, err)
+	}
+
+	f, err := file.Open(filePath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+
+	if err != nil {
+		return nil, fmt.Errorf("Fail to OpenFile :%v", err)
+	}
+	return f, nil
+}
+
+
 
 //var (
 //	LogSavePath = "runtime/logs/"
@@ -15,44 +55,22 @@ import (
 //	TimeFormat  = "20060102"
 //)
 
-func getLogFilePath() string {
-	return fmt.Sprintf("%s", setting.AppSetting.LogSavePath)
-}
+//
+//func getLogFileFullPath() string {
+//	prefixPath := getLogFilePath()
+//	suffixPath := fmt.Sprintf("%s%s.%s",
+//		setting.AppSetting.LogSaveName,
+//		time.Now().Format(setting.AppSetting.TimeFormat),
+//		setting.AppSetting.LogFileExt,
+//	)
+//
+//	return fmt.Sprintf("%s%s", prefixPath, suffixPath)
+//}
 
-func getLogFileFullPath() string {
-	prefixPath := getLogFilePath()
-	suffixPath := fmt.Sprintf("%s%s.%s",
-		setting.AppSetting.LogSaveName,
-		time.Now().Format(setting.AppSetting.TimeFormat),
-		setting.AppSetting.LogFileExt,
-	)
-
-	return fmt.Sprintf("%s%s", prefixPath, suffixPath)
-}
-
-func openLogFile(filePath string) *os.File {
-	_, err := os.Stat(filePath)
-
-	switch {
-	case os.IsNotExist(err):
-		mkDir()
-	case os.IsPermission(err):
-		log.Fatalf("permission : %s", err)
-	}
-
-	handle, err := os.OpenFile(filePath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
-
-	if err != nil {
-		log.Fatalf("%s", err)
-	}
-
-	return handle
-}
-
-func mkDir() {
-	dir, _ := os.Getwd()
-	err := os.MkdirAll(dir+"/"+getLogFilePath(), os.ModePerm)
-	if err != nil {
-		panic(err)
-	}
-}
+//func mkDir() {
+//	dir, _ := os.Getwd()
+//	err := os.MkdirAll(dir+"/"+getLogFilePath(), os.ModePerm)
+//	if err != nil {
+//		panic(err)
+//	}
+//}
