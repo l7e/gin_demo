@@ -1,6 +1,7 @@
 package routers
 
 import (
+	"gin_demo/pkg/excel"
 	"gin_demo/pkg/upload"
 	"gin_demo/routers/api"
 	v1 "gin_demo/routers/api/v1"
@@ -12,14 +13,17 @@ func InitRouter() *gin.Engine {
 	r := gin.Default()
 
 	r.StaticFS("/upload/images", http.Dir(upload.GetImageFullPath()))
+	r.StaticFS("/export", http.Dir(excel.GetExcelFullPath()))
 
 	r.GET("/auth", api.GetAuth)
 	r.POST("/upload", api.UploadImage)
+	r.POST("/export", v1.Export)
 
 	apiv1 := r.Group("/api/v1")
+
 	//apiv1.Use(jwt.JWT())
 	{
-		apiv1.GET("/tags", v1.GetTags)
+		//apiv1.GET("/tags", v1.GetTags)
 		apiv1.POST("/tags", v1.AddTag)
 		apiv1.PUT("/tags/:id", v1.EditTag)
 		apiv1.DELETE("/tags/:id", v1.DeleteTag)

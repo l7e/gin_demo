@@ -23,9 +23,22 @@ func (tag *Tag) BeforeUpdate(scope *gorm.Scope) error {
 	return nil
 }
 
-func GetTags(pageNum int, pageSize int, maps interface{}) (tags []Tag) {
-	db.Where(maps).Offset(pageNum).Limit(pageSize).Find(&tags)
-	return
+func GetTags(pageNum int, pageSize int, maps interface{}) ([]Tag, error) {
+	var (
+		tags []Tag
+		err  error
+	)
+
+	if pageNum > 0 && pageSize > 0 {
+		err = db.Where(maps).Offset(pageNum).Limit(pageSize).Find(&tags).Error
+	} else {
+		err = db.Where(maps).Find(&tags).Error
+	}
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil, err
+	}
+
+	return tags, nil
 }
 
 func GetTagTotal(maps interface{}) (count int) {

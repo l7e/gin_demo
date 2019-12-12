@@ -2,41 +2,43 @@ package v1
 
 import (
 	"gin_demo/models"
+	"gin_demo/pkg/app"
 	"gin_demo/pkg/e"
-	"gin_demo/pkg/setting"
-	"gin_demo/pkg/util"
+	"gin_demo/pkg/excel"
+	"gin_demo/service/tag_service"
 	"github.com/astaxie/beego/validation"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 )
 
-func GetTags(c *gin.Context) {
-	name := c.Query("name")
-	maps := make(map[string]interface{})
-	data := make(map[string]interface{})
-
-	if name != "" {
-		maps["name"] = name
-	}
-
-	state := -1
-
-	if arg := c.Query("state"); arg != "" {
-		state, _ = strconv.Atoi(arg)
-		maps["state"] = state
-	}
-
-	data["lists"] = models.GetTags(util.GetPage(c), setting.AppSetting.PageSize, maps)
-	data["total"] = models.GetTagTotal(maps)
-
-	c.JSON(http.StatusOK, gin.H{
-		"code": e.SUCCESS,
-		"msg":  e.GetMsg(e.SUCCESS),
-		"data": data,
-	})
-
-}
+//
+//func GetTags(c *gin.Context) {
+//	name := c.Query("name")
+//	maps := make(map[string]interface{})
+//	data := make(map[string]interface{})
+//
+//	if name != "" {
+//		maps["name"] = name
+//	}
+//
+//	state := -1
+//
+//	if arg := c.Query("state"); arg != "" {
+//		state, _ = strconv.Atoi(arg)
+//		maps["state"] = state
+//	}
+//
+//	data["lists"] = models.GetTags(util.GetPage(c), setting.AppSetting.PageSize, maps)
+//	data["total"] = models.GetTagTotal(maps)
+//
+//	c.JSON(http.StatusOK, gin.H{
+//		"code": e.SUCCESS,
+//		"msg":  e.GetMsg(e.SUCCESS),
+//		"data": data,
+//	})
+//
+//}
 
 func AddTag(c *gin.Context) {
 	name := c.Query("name")
@@ -134,5 +136,21 @@ func DeleteTag(c *gin.Context) {
 		"code": code,
 		"msg":  e.GetMsg(code),
 		"data": make(map[string]string),
+	})
+}
+
+func Export(c *gin.Context) {
+	appG := app.Gin{c}
+
+	tagService := tag_service.Tag{}
+	filename, err := tagService.Export()
+	if err != nil {
+		appG.Response(http.StatusOK, e.ERROR, nil)
+		return
+	}
+
+	appG.Response(http.StatusOK, e.SUCCESS, map[string]string{
+		"exportPath": excel.GetExcelFullPath() + filename,
+		"exportUrl":  excel.GetExcelFullUrl(filename),
 	})
 }

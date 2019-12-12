@@ -21,6 +21,7 @@ require (
 	github.com/pkg/errors v0.8.1
 	github.com/robfig/cron v1.2.0
 	github.com/swaggo/swag v1.6.3 // indirect
+	github.com/tealeg/xlsx v1.0.5
 	github.com/urfave/cli v1.22.2 // indirect
 	golang.org/x/net v0.0.0-20191209160850-c0dbc17a3553 // indirect
 	golang.org/x/sys v0.0.0-20191204072324-ce4227a45e2e // indirect

@@ -16,7 +16,7 @@ import (
 
 //获取图片完整的URL路径
 func GetImageFullUrl(name string) string {
-	return setting.AppSetting.ImagePrefixUrl + "/" + GetImageSavePath() + name
+	return setting.AppSetting.PrefixUrl + "/" + GetImageSavePath() + name
 }
 
 //获取图片保存的路径
